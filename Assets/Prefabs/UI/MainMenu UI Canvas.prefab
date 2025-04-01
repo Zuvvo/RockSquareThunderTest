@@ -929,12 +929,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e7ca3e19eb99c4f97ff06a95ef7dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TooltipPopup: {fileID: 6703534050121488396}
+  m_TooltipManager: {fileID: 265487022462133766}
   m_TooltipText: Unity Gaming Services ProjectID not set up. Click the Readme file
     in the Assets Folder within the Project window in-editor to follow "How to set
     up Unity Gaming Services"
   m_ActivateOnClick: 1
-  m_TooltipDelay: 0
 --- !u!224 &8941352775669677356 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7721113380319664589, guid: addf3685293c35d48a673397c748f116, type: 3}
@@ -1546,8 +1545,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 976506893685715975, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
       propertyPath: m_Name
-      value: UITooltip
+      value: TooltipManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5675779858893205936, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
+      propertyPath: m_Canvas
+      value: 
+      objectReference: {fileID: 4957181660403194055}
     - target: {fileID: 9057039473410336575, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -1633,19 +1636,19 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
---- !u!224 &553620954170527366 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 9057039473410336575, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
-  m_PrefabInstance: {fileID: 8799974543752718777}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6703534050121488396 stripped
+--- !u!114 &265487022462133766 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2817131904378499509, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8768782473984774079, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
   m_PrefabInstance: {fileID: 8799974543752718777}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 840f53ce4d7eb5644a1a8c603fba7f34, type: 3}
+  m_Script: {fileID: 11500000, guid: 1faf431265fba7740b8e56f36afbfac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &553620954170527366 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9057039473410336575, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
+  m_PrefabInstance: {fileID: 8799974543752718777}
+  m_PrefabAsset: {fileID: 0}

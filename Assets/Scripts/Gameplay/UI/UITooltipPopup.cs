@@ -18,9 +18,6 @@ namespace Unity.BossRoom.Gameplay.UI
         [SerializeField]
         private RectTransform m_TooltipHolder;
         [SerializeField]
-        [Tooltip("This transform is shown/hidden to show/hide the popup box")]
-        private GameObject m_WindowRoot;
-        [SerializeField]
         private TextMeshProUGUI m_TextField;
         [SerializeField]
         private Vector2 m_CursorOffset;
@@ -37,7 +34,7 @@ namespace Unity.BossRoom.Gameplay.UI
         /// </summary>
         public void ShowTooltip(string text)
         {
-            m_WindowRoot.SetActive(true);
+            gameObject.SetActive(true);
             m_TextField.text = text;
             m_TooltipHolder.localPosition = GetPositionFromMouse(m_TooltipHolder as RectTransform);
         }
@@ -47,7 +44,7 @@ namespace Unity.BossRoom.Gameplay.UI
         /// </summary>
         public void HideTooltip()
         {
-            m_WindowRoot.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -58,7 +55,7 @@ namespace Unity.BossRoom.Gameplay.UI
             Vector2 newPosition;
             var canvasBounds = new Bounds(Vector3.zero, (m_Canvas.transform as RectTransform).GetSize());
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, Input.mousePosition, m_Canvas.worldCamera, out newPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.parent as RectTransform, Input.mousePosition, m_Canvas.worldCamera, out newPosition);
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipTransform);
 
@@ -79,20 +76,5 @@ namespace Unity.BossRoom.Gameplay.UI
 
             return newPosition;
         }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (gameObject.scene.rootCount > 1) // Hacky way for checking if this is a scene object or a prefab instance and not a prefab definition.
-            {
-                if (!m_Canvas)
-                {
-                    // typically there's only one canvas in the scene, so pick that
-                    m_Canvas = FindObjectOfType<Canvas>();
-                }
-            }
-        }
-#endif
-
     }
 }

@@ -16,8 +16,7 @@ namespace Unity.BossRoom.Gameplay.UI
     public class UITooltipDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField]
-        [Tooltip("The actual Tooltip that should be triggered")]
-        private UITooltipPopup m_TooltipPopup;
+        private TooltipManager m_TooltipManager;
 
         [SerializeField]
         [Multiline]
@@ -28,12 +27,17 @@ namespace Unity.BossRoom.Gameplay.UI
         [Tooltip("Should the tooltip appear instantly if the player clicks this UI element?")]
         private bool m_ActivateOnClick = true;
 
-        [SerializeField]
-        [Tooltip("The length of time the mouse needs to hover over this element before the tooltip appears (in seconds)")]
-        private float m_TooltipDelay = 0.5f;
-
-        private float m_PointerEnterTime = 0;
         private bool m_IsShowingTooltip;
+        private int m_InstanceId;
+
+        private void Awake()
+        {
+            m_InstanceId = gameObject.GetInstanceID();
+            if(m_TooltipManager == null)
+            {
+                m_TooltipManager = FindObjectOfType<TooltipManager>();
+            }
+        }
 
         public void SetText(string text)
         {
@@ -49,12 +53,11 @@ namespace Unity.BossRoom.Gameplay.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            m_PointerEnterTime = Time.time;
+            ShowTooltip();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            m_PointerEnterTime = 0;
             HideTooltip();
         }
 
@@ -66,44 +69,14 @@ namespace Unity.BossRoom.Gameplay.UI
             }
         }
 
-        private void Update()
-        {
-            if (m_PointerEnterTime != 0 && (Time.time - m_PointerEnterTime) > m_TooltipDelay)
-            {
-                ShowTooltip();
-            }
-        }
-
         private void ShowTooltip()
         {
-            if (!m_IsShowingTooltip)
-            {
-                m_TooltipPopup.ShowTooltip(m_TooltipText);
-                m_IsShowingTooltip = true;
-            }
+            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText);
         }
 
         private void HideTooltip()
         {
-            if (m_IsShowingTooltip)
-            {
-                m_TooltipPopup.HideTooltip();
-                m_IsShowingTooltip = false;
-            }
+            m_TooltipManager.TryHideTooltip(m_InstanceId);
         }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (gameObject.scene.rootCount > 1) // Hacky way for checking if this is a scene object or a prefab instance and not a prefab definition.
-            {
-                if (!m_TooltipPopup)
-                {
-                    // typically there's only one tooltip popup in the scene, so pick that
-                    m_TooltipPopup = FindObjectOfType<UITooltipPopup>();
-                }
-            }
-        }
-#endif
     }
 }
