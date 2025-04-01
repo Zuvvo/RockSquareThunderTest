@@ -2,6 +2,8 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Unity.BossRoom.Utils;
+using UnityEngine.UI;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -14,12 +16,16 @@ namespace Unity.BossRoom.Gameplay.UI
         [SerializeField]
         private Canvas m_Canvas;
         [SerializeField]
+        private RectTransform m_TooltipHolder;
+        [SerializeField]
         [Tooltip("This transform is shown/hidden to show/hide the popup box")]
         private GameObject m_WindowRoot;
         [SerializeField]
         private TextMeshProUGUI m_TextField;
         [SerializeField]
-        private Vector3 m_CursorOffset;
+        private Vector2 m_CursorOffset;
+        [SerializeField]
+        private float m_TooltipScreenBorderMargin;
 
         private void Awake()
         {
@@ -27,14 +33,13 @@ namespace Unity.BossRoom.Gameplay.UI
         }
 
         /// <summary>
-        /// Shows a tooltip at the given mouse coordinates.
+        /// Shows a tooltip at the mouse coordinates.
         /// </summary>
-        public void ShowTooltip(string text, Vector3 screenXy)
+        public void ShowTooltip(string text)
         {
-            screenXy += m_CursorOffset;
-            m_WindowRoot.transform.position = GetCanvasCoords(screenXy);
-            m_TextField.text = text;
             m_WindowRoot.SetActive(true);
+            m_TextField.text = text;
+            m_TooltipHolder.localPosition = GetPositionFromMouse(m_TooltipHolder as RectTransform);
         }
 
         /// <summary>
@@ -46,17 +51,33 @@ namespace Unity.BossRoom.Gameplay.UI
         }
 
         /// <summary>
-        /// Maps screen coordinates (e.g. Input.mousePosition) to coordinates on our Canvas.
+        /// Maps screen coordinates to coordinates on our Canvas and clamps it to not go beyond the canvas.
         /// </summary>
-        private Vector3 GetCanvasCoords(Vector3 screenCoords)
+        private Vector3 GetPositionFromMouse(RectTransform tooltipTransform)
         {
-            Vector2 canvasCoords;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                m_Canvas.transform as RectTransform,
-                screenCoords,
-                m_Canvas.worldCamera,
-                out canvasCoords);
-            return m_Canvas.transform.TransformPoint(canvasCoords);
+            Vector2 newPosition;
+            var canvasBounds = new Bounds(Vector3.zero, (m_Canvas.transform as RectTransform).GetSize());
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, Input.mousePosition, m_Canvas.worldCamera, out newPosition);
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipTransform);
+
+            float tooltipWidth = tooltipTransform.GetWidth();
+            float tooltipHeight = tooltipTransform.GetHeight();
+
+            newPosition.x += m_CursorOffset.x;
+            newPosition.y += m_CursorOffset.y;
+
+            float minXPos = -canvasBounds.size.x + m_TooltipScreenBorderMargin;
+            float maxXPos = -m_TooltipScreenBorderMargin - tooltipWidth;
+
+            float minYPos = -canvasBounds.size.y + m_TooltipScreenBorderMargin;
+            float maxYPos = -m_TooltipScreenBorderMargin - tooltipHeight;
+
+            newPosition.x = Mathf.Clamp(newPosition.x, minXPos, maxXPos);
+            newPosition.y = Mathf.Clamp(newPosition.y, minYPos, maxYPos);
+
+            return newPosition;
         }
 
 #if UNITY_EDITOR

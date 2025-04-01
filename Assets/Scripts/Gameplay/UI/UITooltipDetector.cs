@@ -78,7 +78,7 @@ namespace Unity.BossRoom.Gameplay.UI
         {
             if (!m_IsShowingTooltip)
             {
-                m_TooltipPopup.ShowTooltip(m_TooltipText, Input.mousePosition);
+                m_TooltipPopup.ShowTooltip(m_TooltipText);
                 m_IsShowingTooltip = true;
             }
         }
