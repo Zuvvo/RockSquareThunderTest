@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Xml;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -45,9 +47,22 @@ namespace Unity.BossRoom.Gameplay.UI
                 if (m_ActivatedLinks[linkIndex] == false)
                 {
                     m_ActivatedLinks[linkIndex] = true;
+                    ChangeLinkColor(linkIndex);
                     OnHyperlinkMouseMovedOver?.Invoke(linkInfo.GetLinkID());
                 }
             }
+        }
+
+        private void ChangeLinkColor(int linkIndex)
+        {
+            string pattern = @"<color=[^>]+><u><link";
+            int matchCount = -1;
+
+            m_TmpText.text = Regex.Replace(m_TmpText.text, pattern, match =>
+            {
+                matchCount++;
+                return matchCount == linkIndex ? "<color=grey><u><link" : match.Value;
+            }); ;
         }
     }
 }

@@ -183,7 +183,6 @@ namespace Unity.BossRoom.Gameplay.UI
         #region Hyperlinks
         private void TryOpenHyperlink(string link)
         {
-            Debug.Log(link);
             TooltipData data = m_TooltipsData[link];
 
             var tooltip = m_TooltipPopupPool.GetNewTooltip();
