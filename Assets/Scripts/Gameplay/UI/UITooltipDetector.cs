@@ -24,6 +24,11 @@ namespace Unity.BossRoom.Gameplay.UI
         private string m_TooltipText;
 
         [SerializeField]
+        [Multiline]
+        [Tooltip("Text of advanced tooltip that is displayed after base tooltip")]
+        private string m_AdvancedTooltipText;
+
+        [SerializeField]
         [Tooltip("Should the tooltip appear instantly if the player clicks this UI element?")]
         private bool m_ActivateOnClick = true;
 
@@ -71,7 +76,7 @@ namespace Unity.BossRoom.Gameplay.UI
 
         private void ShowTooltip()
         {
-            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText);
+            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText, m_AdvancedTooltipText);
         }
 
         private void HideTooltip()

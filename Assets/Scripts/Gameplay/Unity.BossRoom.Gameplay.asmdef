@@ -23,7 +23,8 @@
         "Unity.BossRoom.VisualEffects",
         "Unity.BossRoom.CameraUtils",
         "Unity.Multiplayer.Tools.NetworkSimulator.Runtime",
-        "DOTween.Modules"
+        "DOTween.Modules",
+        "Unity.BossRoom.ScriptableObjects"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -578,6 +578,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4712956817780457626, guid: 1bc4508935e434eb4867c367b55cca50, type: 3}
+      propertyPath: m_Value
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5843186486647850782, guid: 1bc4508935e434eb4867c367b55cca50, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -930,9 +934,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TooltipManager: {fileID: 265487022462133766}
-  m_TooltipText: Unity Gaming Services ProjectID not set up. Click the Readme file
-    in the Assets Folder within the Project window in-editor to follow "How to set
-    up Unity Gaming Services"
+  m_TooltipText: Unity Gaming Services ProjectID not set up.
+  m_AdvancedTooltipText: Unity [hl]Gaming Services[/hl] ProjectID not set up. Click
+    the [hl]readme[/hl] in the Assets Folder within the Project window in-editor
+    to follow "How to set up Unity Gaming Services"
   m_ActivateOnClick: 1
 --- !u!224 &8941352775669677356 stripped
 RectTransform:
