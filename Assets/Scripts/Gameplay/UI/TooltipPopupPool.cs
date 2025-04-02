@@ -32,7 +32,6 @@ namespace Unity.BossRoom.Gameplay.UI
         {
             var tooltip = Instantiate(m_TooltipPrefab, transform);
             tooltip.gameObject.SetActive(false);
-            m_Pool.Enqueue(tooltip);
 
             tooltip.Setup(m_Canvas);
 
