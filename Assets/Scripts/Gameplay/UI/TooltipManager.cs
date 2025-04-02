@@ -16,7 +16,7 @@ namespace Unity.BossRoom.Gameplay.UI
         private UITooltipPopup m_UITooltipPopup;
 
         [SerializeField]
-        private UITooltipPopup m_UITooltipAdvancedTempPopup;
+        private TooltipPopupPool m_TooltipPopupPool;
 
         [SerializeField]
         [Tooltip("Time the mouse needs to hover over this element before the tooltip blocks (in seconds)")]
@@ -34,17 +34,20 @@ namespace Unity.BossRoom.Gameplay.UI
         private Dictionary<string, TooltipData> m_TooltipsData = new();
         private Dictionary<int, bool> m_PointerOverState = new();
 
+        private List<UITooltipPopup> m_AdvancedTooltips = new();
+
+        #region Unity callbacks
         private void Awake()
         {
             m_UITooltipPopup.Setup(m_Canvas);
-            m_UITooltipPopup.HyperlinkHandler.OnHyperlinkMouseMovedOver += TryOpenHyperlink;
+            m_TooltipPopupPool.Setup(m_Canvas);
+            SubscribeToTooltipActions(m_UITooltipPopup);
+            CreateTooltipsDataDict();
+        }
 
-            m_UITooltipAdvancedTempPopup.Setup(m_Canvas);
-
-            m_UITooltipPopup.OnTooltipPointerEnter += OnTooltipPoinerEnter;
-            m_UITooltipPopup.OnTooltipPointerExit += TryHideTooltipWithDelay;
-
-            CreateTooltipsDict();
+        private void OnDestroy()
+        {
+            UnsubscribeTooltipActions(m_UITooltipPopup);
         }
 
         private void Update()
@@ -52,11 +55,43 @@ namespace Unity.BossRoom.Gameplay.UI
             if (m_IsTooltipBlocked == false && m_PointerEnterTime != 0 && m_CurrentTooltipRootInstanceId != -1 && (Time.time - m_PointerEnterTime) > m_blockTooltipDelay)
             {
                 BlockBasicTooltip();
-              //  HideBasicTooltip();
-              //  ShowAdvancedTooltip();
             }
         }
+        #endregion
 
+        #region Setup
+        private void SubscribeToTooltipActions(UITooltipPopup popup)
+        {
+            popup.HyperlinkHandler.OnHyperlinkMouseMovedOver += TryOpenHyperlink;
+            popup.OnTooltipPointerEnter += OnTooltipPoinerEnter;
+            popup.OnTooltipPointerExit += TryHideTooltipsWithDelay;
+        }
+
+        private void UnsubscribeTooltipActions(UITooltipPopup popup)
+        {
+            popup.HyperlinkHandler.OnHyperlinkMouseMovedOver -= TryOpenHyperlink;
+            popup.OnTooltipPointerEnter -= OnTooltipPoinerEnter;
+            popup.OnTooltipPointerExit -= TryHideTooltipsWithDelay;
+        }
+
+        private void CreateTooltipsDataDict()
+        {
+            TooltipData[] tooltipsData = Resources.LoadAll<TooltipData>(TOOLTIPS_PATH);
+            foreach (TooltipData data in tooltipsData)
+            {
+                if (m_TooltipsData.ContainsKey(data.LinkName) == false)
+                {
+                    m_TooltipsData.Add(data.LinkName, data);
+                }
+                else
+                {
+                    Debug.LogError($"Duplicated hyperlink: {data.LinkName}");
+                }
+            }
+        }
+        #endregion
+
+        #region Show/Hide Tooltips
         private void BlockBasicTooltip()
         {
             m_IsTooltipBlocked = true;
@@ -73,7 +108,7 @@ namespace Unity.BossRoom.Gameplay.UI
             }
             else
             {
-                TryHideTooltipWithDelay(instanceId);
+                TryHideTooltipsWithDelay(instanceId);
             }
         }
 
@@ -112,37 +147,51 @@ namespace Unity.BossRoom.Gameplay.UI
             m_CurrentTooltipRootInstanceId = -1;
         }
 
+        private void OnTooltipPoinerEnter(int rootInstanceId)
+        {
+            m_CurrentTooltipRootInstanceId = rootInstanceId;
+        }
+
+        private void TryHideTooltipsWithDelay(int rootInstanceId)
+        {
+            StartCoroutine(TryHideTooltipsOnMouseMovedAwayAfterDelay(rootInstanceId));
+        }
+
+        private IEnumerator TryHideTooltipsOnMouseMovedAwayAfterDelay(int rootInstanceId)
+        {
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            if (m_PointerOverState.TryGetValue(rootInstanceId, out bool isPointerOverRoot))
+            {
+                bool isPoitnerOverTooltip = m_UITooltipPopup.IsPointerOver || m_AdvancedTooltips.Exists(x => x.IsPointerOver);
+                if (isPointerOverRoot == false && isPoitnerOverTooltip == false)
+                {
+                    HideBasicTooltip();
+                    for (int i = 0; i < m_AdvancedTooltips.Count; i++)
+                    {
+                        var tooltip = m_AdvancedTooltips[i];
+                        UnsubscribeTooltipActions(tooltip);
+                        m_TooltipPopupPool.ReturnTooltip(tooltip);
+                    }
+                    m_AdvancedTooltips.Clear();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Hyperlinks
         private void TryOpenHyperlink(string link)
         {
             Debug.Log(link);
-            //TooltipData data = m_TooltipsData[link];
-            //m_tooltipText = data.TooltipText;
-            //ShowAdvancedTooltip();
-        }
+            TooltipData data = m_TooltipsData[link];
 
-        private void CreateTooltipsDict()
-        {
-            TooltipData[] tooltipsData = Resources.LoadAll<TooltipData>(TOOLTIPS_PATH);
-            foreach (TooltipData data in tooltipsData)
-            {
-                if(m_TooltipsData.ContainsKey(data.LinkName) == false)
-                {
-                    m_TooltipsData.Add(data.LinkName, data);
-                }
-                else
-                {
-                    Debug.LogError($"Duplicated hyperlink: {data.LinkName}");
-                }
-            }
-        }
-
-        private void ShowAdvancedTooltip()
-        {
-            if(string.IsNullOrEmpty(m_tooltipText) == false)
-            {
-                m_tooltipText = GetTextWithHyperlinks(m_tooltipText);
-                m_UITooltipAdvancedTempPopup.ShowTooltip(m_tooltipText, m_CurrentTooltipRootInstanceId);
-            }
+            var tooltip = m_TooltipPopupPool.GetNewTooltip();
+            tooltip.Setup(m_Canvas);
+            tooltip.ShowTooltip(GetTextWithHyperlinks(data.TooltipText), m_CurrentTooltipRootInstanceId);
+            tooltip.BlockTooltip();
+            SubscribeToTooltipActions(tooltip);
+            m_AdvancedTooltips.Add(tooltip);
         }
 
         private string GetTextWithHyperlinks(string input)
@@ -157,7 +206,7 @@ namespace Unity.BossRoom.Gameplay.UI
                 string extractedText = matches[i].Value;
                 string linkText = matches[i].Groups[1].Value;
 
-                if(m_TooltipsData.TryGetValue(linkText, out TooltipData data))
+                if (m_TooltipsData.TryGetValue(linkText, out TooltipData data))
                 {
                     result = result.Replace(extractedText, $"<color=white><u><link=\"{data.LinkName}\">{data.DisplayedText}</link></u></color>");
                 }
@@ -170,30 +219,7 @@ namespace Unity.BossRoom.Gameplay.UI
 
             return result;
         }
-
-        private void OnTooltipPoinerEnter(int rootInstanceId)
-        {
-            m_CurrentTooltipRootInstanceId = rootInstanceId;
-        }
-
-        private void TryHideTooltipWithDelay(int rootInstanceId)
-        {
-            StartCoroutine(TryHideTooltipOnMouseMovedAwayAfterDelay(rootInstanceId));
-        }
-
-        private IEnumerator TryHideTooltipOnMouseMovedAwayAfterDelay(int rootInstanceId)
-        {
-            yield return new WaitForSecondsRealtime(0.2f);
-
-            if(m_PointerOverState.TryGetValue(rootInstanceId, out bool isPointerOverRoot))
-            {
-                bool isPoitnerOverTooltip = m_UITooltipPopup.IsPointerOver;
-                if(isPointerOverRoot == false && isPoitnerOverTooltip == false)
-                {
-                    HideBasicTooltip();
-                }
-            }
-        }
+        #endregion
     }
 
 }

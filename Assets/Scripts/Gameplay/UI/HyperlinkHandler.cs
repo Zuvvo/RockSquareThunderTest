@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,8 +13,17 @@ namespace Unity.BossRoom.Gameplay.UI
     {
         [SerializeField]
         private TMP_Text m_TmpText;
+        private bool[] m_ActivatedLinks;
 
+        private bool m_IsInitialized;
         public event UnityAction<string> OnHyperlinkMouseMovedOver;
+
+
+        public void Clear()
+        {
+            m_ActivatedLinks = null;
+            m_IsInitialized = false;
+        }
 
         public void OnPointerMove(PointerEventData eventData)
         {
@@ -24,8 +34,19 @@ namespace Unity.BossRoom.Gameplay.UI
             if (linkIndex != -1)
             {
                 TMP_LinkInfo linkInfo = m_TmpText.textInfo.linkInfo[linkIndex];
+                string linkText = linkInfo.GetLinkText();
 
-                OnHyperlinkMouseMovedOver?.Invoke(linkInfo.GetLinkID());
+                if(m_IsInitialized == false)
+                {
+                    m_ActivatedLinks = new bool[m_TmpText.textInfo.linkCount];
+                    m_IsInitialized = true;
+                }
+
+                if (m_ActivatedLinks[linkIndex] == false)
+                {
+                    m_ActivatedLinks[linkIndex] = true;
+                    OnHyperlinkMouseMovedOver?.Invoke(linkInfo.GetLinkID());
+                }
             }
         }
     }

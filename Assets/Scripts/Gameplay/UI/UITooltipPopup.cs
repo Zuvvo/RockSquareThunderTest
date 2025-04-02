@@ -8,6 +8,7 @@ using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using DG.Tweening.Core;
+using UnityEngine.UIElements;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -40,7 +41,6 @@ namespace Unity.BossRoom.Gameplay.UI
         public HyperlinkHandler HyperlinkHandler => m_HyperlinkHandler;
         public event UnityAction<int> OnTooltipPointerEnter;
         public event UnityAction<int> OnTooltipPointerExit;
-
         public bool IsPointerOver { get; private set; }
         public int RootInstanceId { get; private set; }
         private Canvas m_Canvas;
@@ -60,6 +60,8 @@ namespace Unity.BossRoom.Gameplay.UI
 
 
             m_TextField.text = text;
+            m_HyperlinkHandler.Clear();
+
             RootInstanceId = rootInstanceId;
             m_TooltipHolder.localPosition = GetPositionFromMouse(m_TooltipHolder as RectTransform);
         }
@@ -77,6 +79,14 @@ namespace Unity.BossRoom.Gameplay.UI
         public void Setup(Canvas canvas)
         {
             m_Canvas = canvas;
+        }
+
+        public void Clear()
+        {
+            m_TextField.text = string.Empty;
+            m_CanvasGroup.alpha = 0;
+            m_BlockedImageCanvasGroup.alpha = 0;
+            RootInstanceId = -1;
         }
 
         /// <summary>
