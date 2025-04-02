@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Unity.BossRoom.Utils;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -14,8 +15,6 @@ namespace Unity.BossRoom.Gameplay.UI
     public class UITooltipPopup : MonoBehaviour
     {
         [SerializeField]
-        private Canvas m_Canvas;
-        [SerializeField]
         private RectTransform m_TooltipHolder;
         [SerializeField]
         private TextMeshProUGUI m_TextField;
@@ -23,18 +22,24 @@ namespace Unity.BossRoom.Gameplay.UI
         private Vector2 m_CursorOffset;
         [SerializeField]
         private float m_TooltipScreenBorderMargin;
+        [SerializeField]
+        private CanvasGroup m_CanvasGroup;
+        [SerializeField]
+        private float m_FadeInTime = 0.2f;
+        [SerializeField]
+        private float m_FadeOutTime = 0.2f;
 
-        private void Awake()
-        {
-            Assert.IsNotNull(m_Canvas);
-        }
+        private Canvas m_Canvas;
 
         /// <summary>
         /// Shows a tooltip at the mouse coordinates.
         /// </summary>
         public void ShowTooltip(string text)
         {
+            transform.SetAsLastSibling();
+            m_CanvasGroup.alpha = 0;
             gameObject.SetActive(true);
+            m_CanvasGroup.DOFade(1, m_FadeInTime);
             m_TextField.text = text;
             m_TooltipHolder.localPosition = GetPositionFromMouse(m_TooltipHolder as RectTransform);
         }
@@ -44,7 +49,12 @@ namespace Unity.BossRoom.Gameplay.UI
         /// </summary>
         public void HideTooltip()
         {
-            gameObject.SetActive(false);
+            m_CanvasGroup.DOFade(0, m_FadeOutTime).OnComplete(() => gameObject.SetActive(false));
+        }
+
+        public void Setup(Canvas canvas)
+        {
+            m_Canvas = canvas;
         }
 
         /// <summary>
