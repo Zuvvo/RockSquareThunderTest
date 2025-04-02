@@ -1749,6 +1749,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TooltipManager: {fileID: 4883170096674305073}
   m_TooltipText: Ability 3
+  m_AdvancedTooltipText: 
   m_ActivateOnClick: 1
 --- !u!1 &5940892341616097039
 GameObject:
@@ -2355,6 +2356,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TooltipManager: {fileID: 4883170096674305073}
   m_TooltipText: Ability 1
+  m_AdvancedTooltipText: 
   m_ActivateOnClick: 1
 --- !u!1 &5940892342369331859
 GameObject:
@@ -2446,6 +2448,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TooltipManager: {fileID: 4883170096674305073}
   m_TooltipText: Ability 2
+  m_AdvancedTooltipText: 
   m_ActivateOnClick: 1
 --- !u!1 &5940892342402192879
 GameObject:
@@ -3332,6 +3335,10 @@ PrefabInstance:
       value: TooltipManager
       objectReference: {fileID: 0}
     - target: {fileID: 5675779858893205936, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
+      propertyPath: m_Canvas
+      value: 
+      objectReference: {fileID: 5940892341882885363}
+    - target: {fileID: 8768782473984774079, guid: 8f330b9889d290e468180a9a8c8ffdff, type: 3}
       propertyPath: m_Canvas
       value: 
       objectReference: {fileID: 5940892341882885363}

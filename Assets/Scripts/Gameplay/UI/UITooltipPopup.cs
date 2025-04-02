@@ -5,6 +5,9 @@ using UnityEngine.Assertions;
 using Unity.BossRoom.Utils;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using DG.Tweening.Core;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -12,7 +15,7 @@ namespace Unity.BossRoom.Gameplay.UI
     /// This controls the tooltip popup -- the little text blurb that appears when you hover your mouse
     /// over an ability icon.
     /// </summary>
-    public class UITooltipPopup : MonoBehaviour
+    public class UITooltipPopup : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField]
         private RectTransform m_TooltipHolder;
@@ -31,20 +34,33 @@ namespace Unity.BossRoom.Gameplay.UI
         [SerializeField]
         private float m_FadeOutTime = 0.2f;
 
-        public HyperlinkHandler HyperlinkHandler => m_HyperlinkHandler;
+        [SerializeField]
+        private CanvasGroup m_BlockedImageCanvasGroup;
 
+        public HyperlinkHandler HyperlinkHandler => m_HyperlinkHandler;
+        public event UnityAction<int> OnTooltipPointerEnter;
+        public event UnityAction<int> OnTooltipPointerExit;
+
+        public bool IsPointerOver { get; private set; }
+        public int RootInstanceId { get; private set; }
         private Canvas m_Canvas;
+        private Tweener m_HideTween;
 
         /// <summary>
         /// Shows a tooltip at the mouse coordinates.
         /// </summary>
-        public void ShowTooltip(string text)
+        public void ShowTooltip(string text, int rootInstanceId)
         {
             transform.SetAsLastSibling();
             m_CanvasGroup.alpha = 0;
             gameObject.SetActive(true);
+
+            m_HideTween?.Kill();
             m_CanvasGroup.DOFade(1, m_FadeInTime);
+
+
             m_TextField.text = text;
+            RootInstanceId = rootInstanceId;
             m_TooltipHolder.localPosition = GetPositionFromMouse(m_TooltipHolder as RectTransform);
         }
 
@@ -53,7 +69,9 @@ namespace Unity.BossRoom.Gameplay.UI
         /// </summary>
         public void HideTooltip()
         {
-            m_CanvasGroup.DOFade(0, m_FadeOutTime).OnComplete(() => gameObject.SetActive(false));
+            m_CanvasGroup.blocksRaycasts = false;
+            m_BlockedImageCanvasGroup.alpha = 0;
+            m_HideTween = m_CanvasGroup.DOFade(0, m_FadeOutTime).OnComplete(() => gameObject.SetActive(false));
         }
 
         public void Setup(Canvas canvas)
@@ -89,6 +107,25 @@ namespace Unity.BossRoom.Gameplay.UI
             newPosition.y = Mathf.Clamp(newPosition.y, minYPos, maxYPos);
 
             return newPosition;
+        }
+
+        public void BlockTooltip()
+        {
+            m_CanvasGroup.blocksRaycasts = true;
+            m_BlockedImageCanvasGroup.alpha = 0;
+            m_BlockedImageCanvasGroup.DOFade(1, m_FadeInTime);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            OnTooltipPointerEnter?.Invoke(RootInstanceId);
+            IsPointerOver = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            OnTooltipPointerExit?.Invoke(RootInstanceId);
+            IsPointerOver = false;
         }
     }
 }

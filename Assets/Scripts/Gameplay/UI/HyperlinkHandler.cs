@@ -8,14 +8,14 @@ using UnityEngine.EventSystems;
 namespace Unity.BossRoom.Gameplay.UI
 {
 
-    public class HyperlinkHandler : MonoBehaviour, IPointerClickHandler
+    public class HyperlinkHandler : MonoBehaviour, IPointerMoveHandler
     {
         [SerializeField]
         private TMP_Text m_TmpText;
 
-        public event UnityAction<string> OnHyperlinkClicked;
+        public event UnityAction<string> OnHyperlinkMouseMovedOver;
 
-        public void OnPointerClick(PointerEventData eventData)
+        public void OnPointerMove(PointerEventData eventData)
         {
             Vector3 mousePos = new Vector3(eventData.position.x, eventData.position.y, 0);
 
@@ -25,7 +25,7 @@ namespace Unity.BossRoom.Gameplay.UI
             {
                 TMP_LinkInfo linkInfo = m_TmpText.textInfo.linkInfo[linkIndex];
 
-                OnHyperlinkClicked?.Invoke(linkInfo.GetLinkID());
+                OnHyperlinkMouseMovedOver?.Invoke(linkInfo.GetLinkID());
             }
         }
     }

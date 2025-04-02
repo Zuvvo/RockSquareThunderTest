@@ -13,7 +13,7 @@ namespace Unity.BossRoom.Gameplay.UI
     /// - the main camera in the scene has a PhysicsRaycaster component
     /// - if you're attaching this to a UI element such as an Image, make sure you check the "Raycast Target" checkbox
     /// </remarks>
-    public class UITooltipDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class UITooltipDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField]
         private TooltipManager m_TooltipManager;
@@ -22,15 +22,6 @@ namespace Unity.BossRoom.Gameplay.UI
         [Multiline]
         [Tooltip("The text of the tooltip (this is the default text; it can also be changed in code)")]
         private string m_TooltipText;
-
-        [SerializeField]
-        [Multiline]
-        [Tooltip("Text of advanced tooltip that is displayed after base tooltip")]
-        private string m_AdvancedTooltipText;
-
-        [SerializeField]
-        [Tooltip("Should the tooltip appear instantly if the player clicks this UI element?")]
-        private bool m_ActivateOnClick = true;
 
         private bool m_IsShowingTooltip;
         private int m_InstanceId;
@@ -66,17 +57,9 @@ namespace Unity.BossRoom.Gameplay.UI
             HideTooltip();
         }
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (m_ActivateOnClick)
-            {
-                ShowTooltip();
-            }
-        }
-
         private void ShowTooltip()
         {
-            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText, m_AdvancedTooltipText);
+            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText);
         }
 
         private void HideTooltip()
