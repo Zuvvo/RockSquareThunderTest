@@ -38,6 +38,7 @@ namespace Unity.BossRoom.Gameplay.UI
         {
             m_UITooltipPopup.Setup(m_Canvas);
             m_UITooltipAdvancedTempPopup.Setup(m_Canvas);
+            m_UITooltipAdvancedTempPopup.HyperlinkHandler.OnHyperlinkClicked += OnHyperLinkClicked;
 
             CreateTooltipsDict();
         }
@@ -50,11 +51,11 @@ namespace Unity.BossRoom.Gameplay.UI
                 ShowAdvancedTooltip();
             }
 
-            if (m_IsListeningForClick && UnityEngine.Input.GetMouseButtonDown(0) || UnityEngine.Input.GetMouseButtonDown(1) || UnityEngine.Input.GetMouseButtonDown(2))
-            {
-                m_UITooltipAdvancedTempPopup.HideTooltip();
-                m_IsListeningForClick = false;
-            }
+            //if (m_IsListeningForClick && UnityEngine.Input.GetMouseButtonDown(0) || UnityEngine.Input.GetMouseButtonDown(1) || UnityEngine.Input.GetMouseButtonDown(2))
+            //{
+            //    m_UITooltipAdvancedTempPopup.HideTooltip();
+            //    m_IsListeningForClick = false;
+            //}
         }
 
         public void TryHideTooltip(int instanceId)
@@ -75,6 +76,11 @@ namespace Unity.BossRoom.Gameplay.UI
         {
             m_UITooltipPopup.HideTooltip();
             m_CurrentUITooltipDetectorInstanceId = -1;
+        }
+
+        private void OnHyperLinkClicked(string link)
+        {
+            Debug.Log("clicked: " + link);
         }
 
         private void CreateTooltipsDict()
@@ -114,7 +120,7 @@ namespace Unity.BossRoom.Gameplay.UI
 
                 if(m_TooltipsData.TryGetValue(linkText, out TooltipData data))
                 {
-                    result = result.Replace(extractedText, $"<color=white><u>{data.DisplayedText}</u></color>");
+                    result = result.Replace(extractedText, $"<color=white><u><link=\"{data.LinkName}\">{data.DisplayedText}</link></u></color>");
                 }
                 else
                 {

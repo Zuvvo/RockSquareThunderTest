@@ -19,6 +19,8 @@ namespace Unity.BossRoom.Gameplay.UI
         [SerializeField]
         private TextMeshProUGUI m_TextField;
         [SerializeField]
+        private HyperlinkHandler m_HyperlinkHandler;
+        [SerializeField]
         private Vector2 m_CursorOffset;
         [SerializeField]
         private float m_TooltipScreenBorderMargin;
@@ -28,6 +30,8 @@ namespace Unity.BossRoom.Gameplay.UI
         private float m_FadeInTime = 0.2f;
         [SerializeField]
         private float m_FadeOutTime = 0.2f;
+
+        public HyperlinkHandler HyperlinkHandler => m_HyperlinkHandler;
 
         private Canvas m_Canvas;
 
