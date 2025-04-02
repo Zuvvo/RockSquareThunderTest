@@ -1,9 +1,10 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Unity.BossRoom.ScriptableObjects;
+using System.Text;
 using System.Text.RegularExpressions;
+using Unity.BossRoom.Gameplay.Actions;
+using Unity.BossRoom.ScriptableObjects;
+using UnityEngine;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -35,6 +36,7 @@ namespace Unity.BossRoom.Gameplay.UI
         private Dictionary<int, bool> m_PointerOverState = new();
 
         private List<UITooltipPopup> m_AdvancedTooltips = new();
+        private ActionConfig m_ActionConfig;
 
         #region Unity callbacks
         private void Awake()
@@ -124,7 +126,7 @@ namespace Unity.BossRoom.Gameplay.UI
             }
         }
 
-        public void TryShowTooltip(int instanceId, string tooltipText)
+        public void TryShowTooltip(int instanceId, string tooltipText, ActionConfig config)
         {
             UpdatePointerOverState(instanceId, true);
             m_PointerEnterTime = Time.time;
@@ -136,6 +138,7 @@ namespace Unity.BossRoom.Gameplay.UI
                 return;
             }
 
+            m_ActionConfig = config;
             m_tooltipText = tooltipText;
             m_UITooltipPopup.ShowTooltip(GetTextWithHyperlinks(m_tooltipText), m_CurrentTooltipRootInstanceId);
         }
@@ -183,14 +186,30 @@ namespace Unity.BossRoom.Gameplay.UI
         #region Hyperlinks
         private void TryOpenHyperlink(string link)
         {
-            TooltipData data = m_TooltipsData[link];
-
             var tooltip = m_TooltipPopupPool.GetNewTooltip();
+            string text = GetTextForHyperLink(link);
             tooltip.Setup(m_Canvas);
-            tooltip.ShowTooltip(GetTextWithHyperlinks(data.TooltipText), m_CurrentTooltipRootInstanceId);
+            tooltip.ShowTooltip(text, m_CurrentTooltipRootInstanceId);
             tooltip.BlockTooltip();
             SubscribeToTooltipActions(tooltip);
             m_AdvancedTooltips.Add(tooltip);
+        }
+
+        private string GetTextForHyperLink(string link)
+        {
+            if(m_ActionConfig != null)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"Amount: {m_ActionConfig.Amount}");
+                sb.AppendLine($"Mana cost: {m_ActionConfig.ManaCost}");
+                sb.AppendLine($"Range: {m_ActionConfig.Range}");
+                sb.AppendLine($"Duration: {m_ActionConfig.DurationSeconds}s");
+                return sb.ToString();
+            }
+            else
+            {
+                return GetTextWithHyperlinks(m_TooltipsData[link].TooltipText);
+            }
         }
 
         private string GetTextWithHyperlinks(string input)
@@ -204,6 +223,12 @@ namespace Unity.BossRoom.Gameplay.UI
             {
                 string extractedText = matches[i].Value;
                 string linkText = matches[i].Groups[1].Value;
+
+                if (m_ActionConfig != null)
+                {
+                    result = result.Replace(extractedText, $"<color=white><u><link=\"{linkText}\">{linkText}</link></u></color>");
+                    return result;
+                }
 
                 if (m_TooltipsData.TryGetValue(linkText, out TooltipData data))
                 {

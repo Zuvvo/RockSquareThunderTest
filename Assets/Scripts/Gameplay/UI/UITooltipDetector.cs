@@ -1,4 +1,5 @@
 using System;
+using Unity.BossRoom.Gameplay.Actions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -26,6 +27,9 @@ namespace Unity.BossRoom.Gameplay.UI
         private bool m_IsShowingTooltip;
         private int m_InstanceId;
 
+        private ActionConfig m_Config;
+        private bool m_UseActionConfig;
+
         private void Awake()
         {
             m_InstanceId = gameObject.GetInstanceID();
@@ -33,6 +37,12 @@ namespace Unity.BossRoom.Gameplay.UI
             {
                 m_TooltipManager = FindObjectOfType<TooltipManager>();
             }
+        }
+
+        public void SetupActionConfig(ActionConfig config)
+        {
+            m_UseActionConfig = true;
+            m_Config = config;
         }
 
         public void SetText(string text)
@@ -59,7 +69,8 @@ namespace Unity.BossRoom.Gameplay.UI
 
         private void ShowTooltip()
         {
-            m_TooltipManager.TryShowTooltip(m_InstanceId, m_TooltipText);
+            string toDisplay = m_UseActionConfig ? m_TooltipText + Environment.NewLine + "[hl]Action details[/hl]" : m_TooltipText;
+            m_TooltipManager.TryShowTooltip(m_InstanceId, toDisplay, m_Config);
         }
 
         private void HideTooltip()

@@ -1,14 +1,10 @@
-using System;
-using TMPro;
-using UnityEngine;
-using UnityEngine.Assertions;
-using Unity.BossRoom.Utils;
-using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.EventSystems;
+using TMPro;
+using Unity.BossRoom.Utils;
+using UnityEngine;
 using UnityEngine.Events;
-using DG.Tweening.Core;
-using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Unity.BossRoom.Gameplay.UI
 {
@@ -97,7 +93,7 @@ namespace Unity.BossRoom.Gameplay.UI
             Vector2 newPosition;
             var canvasBounds = new Bounds(Vector3.zero, (m_Canvas.transform as RectTransform).GetSize());
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.parent as RectTransform, Input.mousePosition, m_Canvas.worldCamera, out newPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.parent as RectTransform, Input.mousePosition, null, out newPosition);
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipTransform);
 

@@ -255,6 +255,7 @@ namespace Unity.BossRoom.Gameplay.UI
             {
                 sprite = action.Config.Icon;
                 description = action.Config.Description;
+                buttonInfo.Tooltip.SetupActionConfig(action.Config);
             }
 
             // set up UI elements appropriately
